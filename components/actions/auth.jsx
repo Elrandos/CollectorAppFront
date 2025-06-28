@@ -2,65 +2,52 @@ import axios from 'axios';
 import {HOST} from './allowedhost.jsx';
 // import { returnErrors } from "./messages";
 import {
-  LOGIN_SUCCES,
-  LOGIN_FAIL,
-  GET_BEER,
-  REGISTER_SUCCES,
-  REGISTER_FAIL,
-  AUTH_ERROR,
-  USER_LOADING,
-  LOGOUT_SUCCES,
-  CLEAR_GROUP,
-  LOAD_OTHER_USER,
-  RETRIEVE_TOKEN,
-  USER_LOADED,
-  CLIENT_CLEAR,
-  CLEAR_PARTS,
-  CLEAR_CALENDAR,
+  AUTH_ACTIONS,
+  COLLECTION_ACTIONS,
+  ERRORS
 } from './types';
+import {jwtDecode} from 'jwt-decode';
+import store from '../store.jsx';
+import { getCollection } from './collections.jsx';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const loadUser = () => (dispatch, getState) => {
-  dispatch({type: USER_LOADING});
-  axios
-    .get(`http://${HOST}/Authorize/me/`, tokenConfig(getState))
-    .then(res => {
-      dispatch({
-        type: USER_LOADED,
-        payload: res.data,
-      });
-    })
-    .catch(err => {
-      // dispatch(returnErrors(err.response.data, err.response.status));
-      dispatch({
-        type: AUTH_ERROR,
-      });
-    });
-};
+// export const loadUser = () => (dispatch, getState) => {
+//   dispatch({type: AUTH_ACTIONS.USER_LOADING});
+//   axios
+//     .get(`${HOST}/Authorize/me/`, tokenConfig(getState))
+//     .then(res => {
+//       dispatch({
+//         type: AUTH_ACTIONS.USER_LOADED,
+//         payload: res.data,
+//       });
+//     })
+//     .catch(err => {
+//       // dispatch(returnErrors(err.response.data, err.response.status));
+//       dispatch({
+//         type: AUTH_ACTIONS.AUTH_ERROR,
+//       });
+//     });
+// };
 
-export const loadUser2 = tentoken => (dispatch, getState) => {
-  dispatch({type: USER_LOADING});
 
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${tentoken}`,
-    },
-  };
+export const loadUser2 = () => async dispatch => {
+  dispatch({ type: AUTH_ACTIONS.USER_LOADING });
 
-  axios
-    .get(`http://${HOST}/Authorize/me/`, config)
-    .then(res => {
+  try {
+    const token = await AsyncStorage.getItem('accessToken');
+
+    if (token) {
       dispatch({
-        type: USER_LOADED,
-        payload: {token: tentoken, user: {...res.data}},
+        type: AUTH_ACTIONS.LOGIN_SUCCES,
+        payload: { accessToken: token },
       });
-    })
-    .catch(err => {
-      // dispatch(returnErrors(err.response.data, err.response.status));
-      dispatch({
-        type: AUTH_ERROR,
-      });
-    });
+    } else {
+      dispatch({ type: AUTH_ACTIONS.AUTH_ERROR });
+    }
+  } catch (error) {
+    console.error("Token load failed", error);
+    dispatch({ type: AUTH_ACTIONS.AUTH_ERROR });
+  }
 };
 
 export const login = (login, password) => dispatch => {
@@ -70,25 +57,29 @@ export const login = (login, password) => dispatch => {
       Accept: 'application/json',
     },
   };
-  const body = JSON.stringify({login, password});
-  console.log(body);
-  console.log(`http://${HOST}/Authorize/login`);
+
+  const body = JSON.stringify({ login, password });
+
   axios
-    .post(`http://${HOST}/Authorize/login`, body, config)
+    .post(`${HOST}/Connect/Token`, body, config)
     .then(res => {
       dispatch({
-        type: LOGIN_SUCCES,
+        type: AUTH_ACTIONS.LOGIN_SUCCES,
         payload: res.data,
       });
     })
     .catch(err => {
-      // dispatch(returnErrors(err.response.data, err.response.status));
-      console.log(err);
+      const innerCode = err?.response?.data?.innerCode;
+      const fallbackMessage = err?.response?.data?.message || 'Błąd logowania.';
+      const message = ERRORS[innerCode] || fallbackMessage;
+
       dispatch({
-        type: LOGIN_FAIL,
+        type: AUTH_ACTIONS.LOGIN_FAIL,
+        payload: { message },
       });
     });
 };
+
 export const register = (email, login, password) => dispatch => {
   const config = {
     headers: {
@@ -96,67 +87,36 @@ export const register = (email, login, password) => dispatch => {
       Accept: 'application/json',
     },
   };
-  const body = JSON.stringify({email, login, password});
-  console.log(body);
-  console.log(`http://${HOST}/Authorize/register`);
+
+  const body = JSON.stringify({ email, login, password });
 
   axios
-    .post(`http://${HOST}/Authorize/register`, body, config)
+    .post(`${HOST}/User/Register`, body, config)
     .then(res => {
       dispatch({
-        type: REGISTER_SUCCES,
+        type: AUTH_ACTIONS.REGISTER_SUCCES,
         payload: res.data,
       });
     })
     .catch(err => {
-      // dispatch(returnErrors(err.response.data, err.response.status));
-      // console.log("ASa");
+      const innerCode = err?.response?.data?.innerCode;
+      const fallbackMessage = err?.response?.data?.message || 'Błąd rejestracji.';
+      const message = ERRORS[innerCode] || fallbackMessage;
+
       dispatch({
-        type: REGISTER_FAIL,
+        type: AUTH_ACTIONS.REGISTER_FAIL,
+        payload: { message },
       });
     });
 };
 
-export const Logout = () => (dispatch, getState) => {
-  axios
-    .post(`http://${HOST}/api/logout/`, null, tokenConfig(getState))
-    .then(res => {
-      dispatch({
-        type: LOGOUT_SUCCES,
-      });
-      dispatch({
-        type: CLIENT_CLEAR,
-      });
-      dispatch({
-        type: CLEAR_PARTS,
-      });
-      dispatch({
-        type: CLEAR_CALENDAR,
-      });
-    });
-  // .catch((err) => {
-  //     dispatch(returnErrors(err.response.data, err.response.status));
-  // });
+export const Logout = () => dispatch => {
+  dispatch({ type: AUTH_ACTIONS.LOGOUT_SUCCES });
+  dispatch({ type: COLLECTION_ACTIONS.CLEAR });
 };
-
-// export const getbeer = () => dispatch => {
-//   const config = {
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//   };
-
-//   axios.get('http://api.thecatapi.com/v1/images/search', config).then(res => {
-//     console.log(res);
-//     dispatch({
-//       type: GET_BEER,
-//       payload: res.data,
-//     });
-//   });
-// };
 
 export const tokenConfig = getState => {
-  const token = getState().auth.token;
+  const accessToken = getState().auth.accessToken;
 
   const config = {
     headers: {
@@ -164,24 +124,25 @@ export const tokenConfig = getState => {
     },
   };
 
-  if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
+  if (accessToken) {
+    config.headers['Authorization'] = `Bearer ${accessToken}`;
   }
+
   return config;
 };
 
 export const tokenConfigWithForm = getState => {
-  const token = getState().auth.token;
+  const accessToken = getState().auth.accessToken;
 
   const config = {
     headers: {
-      'Content-Type':
-        'multipart/form-data; boundary=----WebKitFormBoundarydMIgtiA2YeB1Z0kl',
+      'Content-Type': 'multipart/form-data',
     },
   };
 
-  if (token) {
-    config.headers['Authorization'] = `Token ${token}`;
+  if (accessToken) {
+    config.headers['Authorization'] = `Bearer ${accessToken}`;
   }
+
   return config;
 };

@@ -149,7 +149,13 @@ export class Register extends Component {
               </TouchableOpacity>
             </View>
           </KeyboardAwareScrollView>
+          {this.props.error && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{this.props.error}</Text>
+            </View>
+          )}
         </View>
+        
         <TouchableOpacity
           onPress={() => {
             this.props.navigation.navigate('Login');
@@ -256,10 +262,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  errorContainer: {
+    backgroundColor: '#ffe6e6',
+    padding: 12,
+    borderRadius: 8,
+    borderColor: '#ff4d4d',
+    borderWidth: 1,
+    marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  errorText: {
+    color: '#cc0000',
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
 });
 
 const mapStateToProps = state => ({
   isAuthenticated: state.auth.isAuthenticated,
+  error: state.auth.error,
 });
 
 export default connect(mapStateToProps, {register})(Register);

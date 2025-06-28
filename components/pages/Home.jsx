@@ -1,263 +1,178 @@
-import React from 'react';
+import React, {Component} from 'react';
 import {
   StyleSheet,
-  Dimensions,
-  SafeAreaView,
-  ScrollView,
+  
   View,
-  TouchableOpacity,
-  TextInput,
+  ScrollView,
   Text,
+  TextInput,
+  TouchableOpacity,
   Image,
 } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import {getCollection} from '../actions/collections';
+import { Logout } from '../actions/auth';
+import {connect} from 'react-redux';
+import PropTypes from 'prop-types';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Collection from '../elements/Collection';
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
 
-const tags = ['ios', 'android', 'web', 'ui', 'ux'];
-const stats = [
-  {label: 'Location', value: 'USA'},
-  {label: 'Job Type', value: 'Full Time'},
-  {label: 'Experience', value: '6 years'},
-];
-const items = [
-  {
-    icon: 'figma',
-    label: 'Senior UI/UX Designer',
-    company: 'Figma',
-    jobType: 'Full Time',
-    years: '2019-2023',
-  },
-  {
-    icon: 'github',
-    label: 'Mid-level Designer',
-    company: 'GitHub',
-    jobType: 'Full Time',
-    years: '2017-2019',
-  },
-  {
-    icon: 'twitter',
-    label: 'Junior Designer',
-    company: 'Twitter',
-    jobType: 'Full Time',
-    years: '2015-2017',
-  },
-];
-const CARD_WIDTH = Math.min(Dimensions.get('screen').width * 0.75, 400);
+class Home extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      input: '',
+    };
+  }
 
-export default function Example() {
-  return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-      <View style={styles.header}>
-        <View style={styles.headerAction}>
-          <TouchableOpacity
-            onPress={() => {
-              // handle onPress
-            }}>
-            <FeatherIcon name="chevron-left" size={24} />
-          </TouchableOpacity>
-        </View>
+  filteredRows() {
+    const {input} = this.state;
+    const query = input.toLowerCase();
 
-        <View style={styles.search}>
-          <View style={styles.searchIcon}>
-            <FeatherIcon color="#778599" name="search" size={17} />
+    const rows = this.props.collectionList
+      .map(user => {
+        const index = user.name.toLowerCase().indexOf(query);
+        if (index !== -1) {
+          return {...user, index};
+        }
+        return null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.index - b.index);
+
+    return rows;
+  }
+  componentDidMount() {
+    this.props.getCollection();
+  }
+  handleLogout() {
+    this.props.Logout();
+  }
+  render() {
+    const {navigation} = this.props;
+    const {input} = this.state;
+    const filteredRows = this.filteredRows();
+
+    return (
+      <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Twoje Kolekcje</Text>
+          <View style={styles.header}>
+            {/* <View style={styles.headerAction}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          // handle onPress
+                        }}>
+                        <FeatherIcon name="chevron-left" size={24} />
+                      </TouchableOpacity>
+                    </View> */}
+            <View style={styles.search}>
+              <View style={styles.searchIcon}>
+                <FeatherIcon color="#778599" name="search" size={17} />
+              </View>
+              <TextInput
+                autoCapitalize="words"
+                autoComplete="name"
+                placeholder="Search..."
+                returnKeyType="search"
+                placeholderTextColor="#778599"
+                onChangeText={(text) => this.setState({ input: text })}
+                value={this.state.input}
+                style={styles.searchControl}
+              />
+            </View>
+            <View style={[styles.headerAction, {alignItems: 'flex-end'}]}>
+              <TouchableOpacity
+                onPress={() => {
+                  // handle onPress
+                }}>
+                <Menu>
+                  <MenuTrigger>
+                    <FeatherIcon name="more-vertical" size={24} />
+                  </MenuTrigger>
+                  <MenuOptions customStyles={menuStyles}>
+                    <MenuOption onSelect={() => this.handleLogout()} text="Wyloguj" />
+                    {/* <MenuOption onSelect={this.handleDelete} text="Usuń" /> */}
+                  </MenuOptions>
+                </Menu>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          <TextInput
-            autoCapitalize="words"
-            autoComplete="name"
-            placeholder="Search..."
-            placeholderTextColor="#778599"
-            style={styles.searchControl}
-          />
-        </View>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            // refreshControl={
+            //   <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            // }
+          >
+            {filteredRows.length ? (
+              filteredRows.map((item) => (
+                <Collection
+                  key={item.id}
+                  navigation={navigation}
+                  item={item}
 
-        <View style={[styles.headerAction, {alignItems: 'flex-end'}]}>
-          <TouchableOpacity
-            onPress={() => {
-              // handle onPress
-            }}>
-            <FeatherIcon name="more-vertical" size={24} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <ScrollView>
-        <View style={styles.content}>
-          <View style={styles.profile}>
-            <View style={styles.profileTop}>
-              <View style={styles.avatar}>
-                <Image
-                  alt=""
-                  source={{
-                    uri: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80',
-                  }}
-                  style={styles.avatarImg}
                 />
-
-                <View style={styles.avatarNotification} />
-              </View>
-
-              <View style={styles.profileBody}>
-                <Text style={styles.profileTitle}>{'Nickolas\nMiller'}</Text>
-
-                <Text style={styles.profileSubtitle}>
-                  UI/UX Designer
-                  {' · '}
-                  <Text style={{color: '#266EF1'}}>@nickmiller</Text>
-                </Text>
-              </View>
-            </View>
-
-            <Text style={styles.profileDescription}>
-              Skilled in user research, wireframing, prototyping, and
-              collaborating with cross-functional teams.
-            </Text>
-
-            <View style={styles.profileTags}>
-              {tags.map((tag, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => {
-                    // handle onPress
-                  }}>
-                  <Text style={styles.profileTagsItem}>#{tag}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.stats}>
-            {stats.map(({label, value}, index) => (
-              <View
-                key={index}
-                style={[styles.statsItem, index === 0 && {borderLeftWidth: 0}]}>
-                <Text style={styles.statsItemText}>{label}</Text>
-
-                <Text style={styles.statsItemValue}>{value}</Text>
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.contentActions}>
-            <TouchableOpacity
-              onPress={() => {
-                // handle onPress
-              }}
-              style={{flex: 1, paddingHorizontal: 6}}>
-              <View style={styles.btn}>
-                <Text style={styles.btnText}>Follow</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => {
-                // handle onPress
-              }}
-              style={{flex: 1, paddingHorizontal: 6}}>
-              <View style={styles.btnPrimary}>
-                <Text style={styles.btnPrimaryText}>Message</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.list}>
-          <View style={styles.listHeader}>
-            <Text style={styles.listTitle}>My Experience</Text>
-
-            <TouchableOpacity
-              onPress={() => {
-                // handle onPress
-              }}>
-              <Text style={styles.listAction}>View All</Text>
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView
-            contentContainerStyle={styles.listContent}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}>
-            {items.map(({icon, label, company, jobType, years}, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => {
-                  // handle onPress
-                }}>
-                <View style={styles.card}>
-                  <View style={styles.cardTop}>
-                    <View style={styles.cardIcon}>
-                      <FeatherIcon color="#000" name={icon} size={24} />
-                    </View>
-
-                    <View style={styles.cardBody}>
-                      <Text style={styles.cardTitle}>{label}</Text>
-
-                      <Text style={styles.cardSubtitle}>{company}</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.cardFooter}>
-                    <Text style={styles.cardFooterText}>{jobType}</Text>
-
-                    <Text style={styles.cardFooterText}>{years}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+              ))
+            ) : (
+              <Text style={styles.emptyText}>brak kolekcji</Text>
+            )}
+            <View style={{height: 150}} />
           </ScrollView>
-        </View>
-
-        <View style={styles.list}>
-          <View style={styles.listHeader}>
-            <Text style={styles.listTitle}>Recommended for you</Text>
-
+          <View style={styles.buttonContainerX}>
             <TouchableOpacity
-              onPress={() => {
-                // handle onPress
-              }}>
-              <Text style={styles.listAction}>View All</Text>
+              onPress={() => navigation.navigate('AddCollections')}
+              style={styles.buttonX}>
+              <AntDesign name="adduser" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-
-          <ScrollView
-            contentContainerStyle={styles.listContent}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}>
-            {items.map(({icon, label, company, jobType, years}, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => {
-                  // handle onPress
-                }}>
-                <View style={styles.card}>
-                  <View style={styles.cardTop}>
-                    <View style={styles.cardIcon}>
-                      <FeatherIcon color="#000" name={icon} size={24} />
-                    </View>
-
-                    <View style={styles.cardBody}>
-                      <Text style={styles.cardTitle}>{label}</Text>
-
-                      <Text style={styles.cardSubtitle}>{company}</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.cardFooter}>
-                    <Text style={styles.cardFooterText}>{jobType}</Text>
-
-                    <Text style={styles.cardFooterText}>{years}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
         </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+      </SafeAreaView>
+    );
+  }
 }
 
+const menuStyles = {
+  optionsContainer: {
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    elevation: 5,
+  },
+  optionText: {
+    fontSize: 16,
+    color: '#1d2a32',
+    padding: 8,
+  },
+  optionWrapper: {
+    paddingHorizontal: 12,
+  },
+};
+
 const styles = StyleSheet.create({
-  /** Header */
+  container: {
+    // paddingBottom: 24,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+  },
+  title: {
+    fontSize: 27,
+    fontWeight: '700',
+    color: '#222',
+    // marginTop: 24,
+    // marginBottom: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    padding: 2,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -302,241 +217,152 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
-  /** Content */
-  content: {
-    paddingTop: 12,
-    paddingHorizontal: 24,
-  },
-  contentActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 18,
-    marginHorizontal: -6,
-    marginBottom: 0,
-  },
-  /** Profile */
-  profile: {
-    paddingTop: 4,
-    paddingBottom: 16,
-  },
-  profileTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  profileBody: {
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 0,
-    paddingLeft: 16,
-  },
-  profileTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    lineHeight: 32,
-    color: '#121a26',
-    marginBottom: 6,
-  },
-  profileSubtitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#778599',
-  },
-  profileDescription: {
-    fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 18,
-    color: '#778599',
-  },
-  profileTags: {
-    marginTop: 8,
+  /** Card */
+  card: {
+    paddingVertical: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-  profileTagsItem: {
-    fontSize: 14,
-    fontWeight: '600',
-    lineHeight: 18,
-    color: '#266ef1',
-    marginRight: 4,
+  cardWrapper: {
+    borderBottomWidth: 1,
+    borderColor: '#d6d6d6',
   },
-  /** Avatar */
-  avatar: {
-    position: 'relative',
-  },
-  avatarImg: {
-    width: 80,
-    height: 80,
-    borderRadius: 9999,
-  },
-  avatarNotification: {
-    position: 'absolute',
-    borderRadius: 9999,
-    borderWidth: 2,
-    borderColor: '#fff',
-    bottom: 0,
-    right: -2,
-    width: 21,
-    height: 21,
-    backgroundColor: '#22C55E',
-  },
-  /** Stats */
-  stats: {
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    padding: 20,
+  cardImg: {
+    width: 42,
+    height: 42,
     borderRadius: 12,
-    shadowColor: '#90a0ca',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    elevation: 1,
   },
-  statsItem: {
-    flexDirection: 'column',
+  cardAvatar: {
+    display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 0,
-    borderLeftWidth: 1,
-    borderColor: 'rgba(189, 189, 189, 0.32)',
+    backgroundColor: '#9ca1ac',
   },
-  statsItemText: {
-    fontSize: 14,
-    fontWeight: '400',
-    lineHeight: 18,
-    color: '#778599',
-    marginBottom: 5,
-  },
-  statsItemValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    lineHeight: 20,
-    color: '#121a26',
-  },
-  /** Button */
-  btn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderWidth: 2,
-    backgroundColor: 'transparent',
-    borderColor: '#266EF1',
-  },
-  btnText: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: '700',
-    color: '#266EF1',
-  },
-  btnPrimary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderWidth: 2,
-    backgroundColor: '#266EF1',
-    borderColor: '#266EF1',
-  },
-  btnPrimaryText: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: '700',
+  cardAvatarText: {
+    fontSize: 19,
+    fontWeight: 'bold',
     color: '#fff',
   },
-  /** List */
-  list: {
-    marginTop: 16,
-  },
-  listHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-  },
-  listTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    lineHeight: 22,
-    color: '#121a26',
-  },
-  listAction: {
-    fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 20,
-    color: '#778599',
-  },
-  listContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-  },
-  /** Card */
-  card: {
-    width: CARD_WIDTH,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    marginHorizontal: 6,
-    shadowColor: '#90a0ca',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  cardTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  cardIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 9999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#eff1f5',
-  },
   cardBody: {
-    paddingLeft: 12,
+    marginRight: 'auto',
+    marginLeft: 12,
   },
   cardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#000',
+  },
+  cardPhone: {
     fontSize: 15,
-    fontWeight: '600',
-    lineHeight: 18,
-    color: '#121a26',
-    marginBottom: 4,
-  },
-  cardSubtitle: {
-    fontSize: 14,
+    lineHeight: 20,
     fontWeight: '500',
-    lineHeight: 18,
-    color: '#778599',
+    color: '#616d79',
+    marginTop: 3,
   },
-  cardFooter: {
+  cardAction: {
+    paddingRight: 16,
+  },
+  scrollContent: {
+    padding: 16,
+  },
+  cardWrapper: {
+    marginBottom: 12,
+  },
+  card: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 18,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    elevation: 2,
   },
-  cardFooterText: {
+  cardImg: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: '#e5e7eb',
+  },
+  cardAvatar: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardAvatarText: {
+    fontSize: 18,
+    color: '#374151',
+    fontWeight: '600',
+  },
+  cardBody: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  cardItemsCount: {
     fontSize: 13,
-    fontWeight: '500',
-    lineHeight: 18,
-    color: '#778599',
+    color: '#9ca3af',
+    marginTop: 4,
+  },
+  cardAction: {
+    paddingLeft: 8,
+  },
+  emptyText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#9ca3af',
+    marginTop: 24,
+  },
+  //button
+  buttonContainerX: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 20,
+    right: 10,
+    elevation: 14,
+  },
+  buttonContainerX2: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 100,
+    right: 10,
+  },
+  buttonContainerX3: {
+    flex: 1,
+    justifyContent: 'center', // Centrowanie w pionie
+    alignItems: 'center',
+    bottom: 20,
+  },
+  buttonX: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#185aca',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    width: 65,
+    height: 65,
+
+    borderRadius: 100,
+  },
+  buttonTextX: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
+
+const mapStateToProps = state => ({
+  collectionList: state.collections.collectionList,
+});
+
+export default connect(mapStateToProps, {getCollection, Logout})(Home);

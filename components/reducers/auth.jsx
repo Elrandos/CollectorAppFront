@@ -1,15 +1,5 @@
 import {
-  REGISTER_FAIL,
-  REGISTER_SUCCES,
-  LOGIN_SUCCES,
-  LOGIN_FAIL,
-  LOGOUT_SUCCES,
-  USER_LOADED,
-  USER_LOADING,
-  AUTH_ERROR,
-  LOAD_OTHER_USER,
-  RETRIEVE_TOKEN,
-  MUST_LOGIN,
+  AUTH_ACTIONS
 } from '../actions/types';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,68 +7,65 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // import { AsyncStorage } from "react-native";
 // const sotre = await SecureStore.getItemAsync("token");
 const initialState = {
-  token: AsyncStorage.getItem('token'),
+  accessToken: null,
   isAuthenticated: false,
   user: null,
   isLoading: false,
+  error: null, // <-- dodane
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    // case RETRIEVE_TOKEN:
-    //     SecureStore.setItemAsync("token", action.payload);
-    //     return {
-    //         ...state,
-    //     };
-    // case USER_LOADING:
-    //     return {
-    //         ...state,
-    //         isLoading: true,
-    //     };
-    case LOGIN_SUCCES:
-    case REGISTER_SUCCES:
-    case USER_LOADED:
-      console.log(USER_LOADED);
-      AsyncStorage.setItem('token', action.payload.token);
+    case AUTH_ACTIONS.USER_LOADING:
       return {
         ...state,
-        ...action.payload,
+        isLoading: true,
+        error: null, // czyść błędy przy nowej akcji
+      };
+
+    case AUTH_ACTIONS.LOGIN_SUCCES:
+    case AUTH_ACTIONS.REGISTER_SUCCES:
+      AsyncStorage.setItem('accessToken', action.payload.accessToken);
+      return {
+        ...state,
+        accessToken: action.payload.accessToken,
         isAuthenticated: true,
         isLoading: false,
+        error: null,
       };
 
-    // case LOAD_OTHER_USER:
-    //     store.dispatch(loadGroup());
-    //     store.dispatch(get_member_user());
-    //     return {
-    //         ...state,
-    //     };
-    case MUST_LOGIN:
+    case AUTH_ACTIONS.USER_LOADED:
       return {
         ...state,
+        isAuthenticated: true,
         isLoading: false,
+        error: null,
       };
-    case LOGIN_FAIL:
-    case REGISTER_FAIL:
-    case AUTH_ERROR:
-      console.log(LOGIN_FAIL);
 
+    case AUTH_ACTIONS.LOGIN_FAIL:
+    case AUTH_ACTIONS.REGISTER_FAIL:
+    case AUTH_ACTIONS.AUTH_ERROR:
+      AsyncStorage.removeItem('accessToken');
       return {
         ...state,
-        token: null,
+        accessToken: null,
         user: null,
         isAuthenticated: false,
         isLoading: false,
+        error: action.payload?.message || 'Wystąpił błąd uwierzytelniania.', // <-- obsługa errora
       };
-    case LOGOUT_SUCCES:
-      AsyncStorage.removeItem('token');
+
+    case AUTH_ACTIONS.LOGOUT_SUCCES:
+      AsyncStorage.removeItem('accessToken');
       return {
         ...state,
-        token: null,
+        accessToken: null,
         user: null,
         isAuthenticated: false,
         isLoading: false,
+        error: null,
       };
+
     default:
       return state;
   }

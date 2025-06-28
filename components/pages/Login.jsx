@@ -8,11 +8,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  SafeAreaView,
+
 } from 'react-native';
 import {login} from '../actions/auth';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export class Login extends Component {
   constructor(props) {
@@ -104,6 +105,11 @@ export class Login extends Component {
               </TouchableOpacity>
             </View>
           </KeyboardAwareScrollView>
+          {this.props.error && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{this.props.error}</Text>
+            </View>
+          )}
         </View>
         <TouchableOpacity
           onPress={() => {
@@ -211,10 +217,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  errorContainer: {
+    backgroundColor: '#ffe6e6',
+    padding: 12,
+    borderRadius: 8,
+    borderColor: '#ff4d4d',
+    borderWidth: 1,
+    marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    color: '#cc0000',
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
 });
 
 const mapStateToProps = state => ({
   isAuthenticated: state.auth.isAuthenticated,
+  error: state.auth.error,
 });
 
 export default connect(mapStateToProps, {login})(Login);

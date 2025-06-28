@@ -8,7 +8,7 @@ import React, {Component, useEffect} from 'react';
 import store from './components/store';
 import {Provider} from 'react-redux';
 // import { createDrawerNavigator } from '@react-navigation/drawer';
-
+import { MenuProvider } from 'react-native-popup-menu';
 import Nav from './components/nav/Nav';
 import 'react-native-gesture-handler';
 // const Stack = createNativeStackNavigator();
@@ -63,9 +63,11 @@ class App extends Component {
   // }
   render() {
     return (
-      <Provider store={store}>
-        <Nav />
-      </Provider>
+      <MenuProvider>
+        <Provider store={store}>
+          <Nav />
+        </Provider>
+      </MenuProvider>
     );
   }
 }
