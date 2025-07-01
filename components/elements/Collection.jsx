@@ -13,6 +13,25 @@ export class Collection extends Component {
     const { navigation} = this.props
     const {id, name, description, imageUrl, items} = this.props.item
     console.log(id)
+    imageContent = (imageUrl) => {
+      if(imageUrl){
+        return(
+          <Image
+            alt=""
+            resizeMode="cover"
+            source={{uri: `${HOST}${imageUrl}`}}
+            style={styles.cardImg}
+            />
+        )
+      }
+      else{
+        return(
+          <View style={[styles.cardImg, styles.cardAvatar]}>
+            <Text style={styles.cardAvatarText}>{name[0]}</Text>
+          </View>
+        )
+      }
+    }
     return (
       
         <TouchableOpacity
@@ -21,20 +40,7 @@ export class Collection extends Component {
             }}
             style={styles.card}
             >
-            
-            {imageUrl ? (
-                <Image
-                alt=""
-                resizeMode="cover"
-                source={{uri: `${HOST}${imageUrl}`}}
-                style={styles.cardImg}
-                />
-            ) : (
-                <View style={[styles.cardImg, styles.cardAvatar]}>
-                <Text style={styles.cardAvatarText}>{name[0]}</Text>
-                </View>
-            )}
-
+            {imageContent(imageUrl)}
             <View style={styles.cardBody}>
                 <Text style={styles.cardTitle}>{name}</Text>
                 <Text style={styles.cardDescription}>
@@ -53,7 +59,6 @@ export class Collection extends Component {
                 size={22}
                 />
             </View>
-          
         </TouchableOpacity>
   
     )
@@ -73,8 +78,6 @@ cardWrapper: {
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 5,
-    // borderColor:"#000fff",
-    // borderWidth: 1,
     shadowOffset: {width: 0, height: 2},
     elevation: 2,
     marginBottom: 12,

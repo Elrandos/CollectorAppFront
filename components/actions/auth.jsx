@@ -1,34 +1,11 @@
 import axios from 'axios';
 import {HOST} from './allowedhost.jsx';
-// import { returnErrors } from "./messages";
 import {
   AUTH_ACTIONS,
   COLLECTION_ACTIONS,
   ERRORS
 } from './types';
-import {jwtDecode} from 'jwt-decode';
-import store from '../store.jsx';
-import { getCollection } from './collections.jsx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// export const loadUser = () => (dispatch, getState) => {
-//   dispatch({type: AUTH_ACTIONS.USER_LOADING});
-//   axios
-//     .get(`${HOST}/Authorize/me/`, tokenConfig(getState))
-//     .then(res => {
-//       dispatch({
-//         type: AUTH_ACTIONS.USER_LOADED,
-//         payload: res.data,
-//       });
-//     })
-//     .catch(err => {
-//       // dispatch(returnErrors(err.response.data, err.response.status));
-//       dispatch({
-//         type: AUTH_ACTIONS.AUTH_ERROR,
-//       });
-//     });
-// };
-
 
 export const loadUser2 = () => async dispatch => {
   dispatch({ type: AUTH_ACTIONS.USER_LOADING });

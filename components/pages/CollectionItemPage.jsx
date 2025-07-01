@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet,
   View,
   TouchableOpacity,
   Text,
@@ -19,7 +18,7 @@ import {
   MenuOption,
   MenuTrigger,
 } from 'react-native-popup-menu';
-
+import { styles, menuStyles } from '../styles/CollectionItemPageStyles';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 class CollectionItemPage extends Component {
@@ -58,9 +57,8 @@ class CollectionItemPage extends Component {
     if (colectionObject?.imageUrl) {
       const fullImageUrl = `${HOST}` + colectionObject.imageUrl;
 
-      // Pobierz rozmiar oryginalnego obrazka
       Image.getSize(fullImageUrl, (width, height) => {
-        const screenWidth = SCREEN_WIDTH - 32; // padding horizontal
+        const screenWidth = SCREEN_WIDTH - 32; 
         const ratio = height / width;
         const calculatedHeight = screenWidth * ratio;
 
@@ -81,13 +79,8 @@ class CollectionItemPage extends Component {
       item => item.id === collectionItemDetail
     );
 
-    const imageBaseUrl = 'https://yourserver.com'; // Zmień na swój backend!
-
     const showContent = () => {
       if (!colectionObject) return null;
-
-
-
       return (
         <ScrollView contentContainerStyle={styles.scroll}>
           {colectionObject.imageUrl ? (
@@ -141,7 +134,6 @@ class CollectionItemPage extends Component {
             </View>
             {showHeaderContent()}
           </View>
-
           {showContent()}
         </View>
       </SafeAreaView>
@@ -158,101 +150,4 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps, { getCollectionItemDetail, deleteCollectionItem })(
   CollectionItemPage
 );
-
-const menuStyles = {
-  optionsContainer: {
-    paddingVertical: 4,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    elevation: 5,
-  },
-  optionText: {
-    fontSize: 16,
-    color: '#1d2a32',
-    padding: 8,
-  },
-  optionWrapper: {
-    paddingHorizontal: 12,
-  },
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#e8ecf4',
-  },
-  scroll: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-    alignItems: 'center',
-  },
-  mainImage: {
-    width: SCREEN_WIDTH - 32,
-    borderRadius: 16,
-    marginBottom: 20,
-    backgroundColor: '#ccc',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1d2a32',
-    textAlign: 'center',
-    marginBottom: 10,
-    textTransform: 'capitalize',
-  },
-  description: {
-    fontSize: 16,
-    color: '#555',
-    fontWeight: '400',
-    textAlign: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 8,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginVertical: 12,
-    paddingHorizontal: 24,
-  },
-  headerAction: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1d2a32',
-    textTransform: 'lowercase',
-  },
-  addCard: {
-    width: SCREEN_WIDTH - 32,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingVertical: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3,
-  },
-  nameAdd: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#929292',
-    marginTop: 8,
-    textTransform: 'uppercase',
-  },
-  placeholder: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#dcdcdc',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 16,
-    marginBottom: 20,
-  },
-  placeholderText: {
-    fontSize: 64,
-    fontWeight: 'bold',
-    color: '#555',
-  },
-});
 

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-  ActivityIndicator,
 } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {launchImageLibrary} from 'react-native-image-picker';
@@ -16,9 +15,8 @@ import {addItemCollection} from '../actions/collections';
 import extractFiles from 'extract-files/extractFiles.mjs';
 import {HOST} from '../actions/allowedhost';
 import { SafeAreaView } from 'react-native-safe-area-context';
-// import isExtractableFile from 'extract-files/isExtractableFile.mjs';
-// import ReactNativeFile from 'extract-files/public/ReactNativeFile.js';
-// import extractFiles, {ReactNativeFile} from 'extract-files';
+import { styles } from '../styles/AddCollectionItemStyles';
+
 class AddCollectionItem extends Component {
   constructor(props) {
     super(props);
@@ -38,12 +36,11 @@ class AddCollectionItem extends Component {
   };
 
   handleSubmit = async () => {
-    // this.setState({uploading: true});
     const {form, image} = this.state;
     const {collectionDetail} = this.props
-    // const file = new ReactNativeFile(image);
+
     const data = new FormData();
-    // console.log(collectionDetail)
+
     data.append("CollectionId", collectionDetail);
     data.append('Name', form.name);
     data.append('Description', form.description);
@@ -68,6 +65,32 @@ class AddCollectionItem extends Component {
   render() {
     const {navigation, collectionDetail} = this.props;
     const {form, image} = this.state;
+
+    const imageForm = (image) => {
+      if (image){
+        return(
+          <TouchableOpacity
+            style={styles.imagePicker}
+            onPress={this.pickImage}
+            >
+              <Image source={{uri: image.uri}} style={styles.pickedImage} />
+          </TouchableOpacity>
+ 
+        )
+      }
+      else{
+        return(
+          <TouchableOpacity
+            style={styles.imagePicker}
+            onPress={this.pickImage}
+              >
+            <Text style={styles.imagePickerText}>
+              dodaj zdjęcie (opcjonalnie)
+            </Text>
+          </TouchableOpacity>
+        )
+      }
+    }
 
     return (
       <SafeAreaView style={{flex: 1, backgroundColor: '#e8ecf4'}}>
@@ -115,17 +138,7 @@ class AddCollectionItem extends Component {
               />
             </View>
 
-            <TouchableOpacity
-              style={styles.imagePicker}
-              onPress={this.pickImage}>
-              {image ? (
-                <Image source={{uri: image.uri}} style={styles.pickedImage} />
-              ) : (
-                <Text style={styles.imagePickerText}>
-                  dodaj zdjęcie (opcjonalnie)
-                </Text>
-              )}
-            </TouchableOpacity>
+            {imageForm(image)}
 
             <View style={styles.formAction}>
               <TouchableOpacity onPress={this.handleSubmit}>
@@ -146,47 +159,3 @@ const mapStateToProps = state => ({
 });
 
 export default connect(mapStateToProps, {addItemCollection})(AddCollectionItem);
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-  },
-  header: {flexDirection: 'row', alignItems: 'center', marginBottom: 12},
-  headerBack: {padding: 8, marginLeft: -16},
-  title: {fontSize: 31, fontWeight: '700', color: '#1D2A32', marginBottom: 6},
-  subtitle: {fontSize: 15, fontWeight: '500', color: '#929292'},
-  form: {marginTop: 24, flex: 1},
-  input: {marginBottom: 16},
-  inputLabel: {fontSize: 17, fontWeight: '600', color: '#222', marginBottom: 8},
-  inputControl: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#C9D3DB',
-    fontSize: 15,
-    color: '#222',
-  },
-  imagePicker: {
-    height: 150,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#C9D3DB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  imagePickerText: {color: '#6b7280'},
-  pickedImage: {width: '100%', height: '100%', borderRadius: 12},
-  formAction: {marginTop: 4, marginBottom: 16},
-  btn: {
-    backgroundColor: '#075eec',
-    borderRadius: 30,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  btnText: {color: '#fff', fontSize: 18, fontWeight: '600'},
-});

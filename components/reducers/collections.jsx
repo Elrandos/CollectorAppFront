@@ -1,9 +1,5 @@
 import {COLLECTION_ACTIONS} from '../actions/types';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// import { AsyncStorage } from "react-native";
-// const sotre = await SecureStore.getItemAsync("token");
 const initialState = {
   collectionList: [],
   collectionDetail: null,
@@ -22,9 +18,6 @@ export default function (state = initialState, action) {
       };
     case COLLECTION_ACTIONS.GET_COLLECTION_DETAIL:
       const { id } = action.payload
-      // const collectionCollection = state.collectionList.find(element => element.id == id)
-      // console.log("collection")
-      // console.log(collection)
       return { 
         ...state,
         collectionDetail: id,
@@ -32,7 +25,6 @@ export default function (state = initialState, action) {
 
     case COLLECTION_ACTIONS.GET_COLLECTION_ITEM_DETAIL:
       const idItem = action.payload.id
-      // const collectionCollectionItem = state.collectionList.find(element => element.id == idItem)
       return {
         ...state,
         collectionItemDetail: idItem,

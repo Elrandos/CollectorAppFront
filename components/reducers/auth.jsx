@@ -1,17 +1,14 @@
 import {
   AUTH_ACTIONS
 } from '../actions/types';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// import { AsyncStorage } from "react-native";
-// const sotre = await SecureStore.getItemAsync("token");
 const initialState = {
   accessToken: null,
   isAuthenticated: false,
   user: null,
   isLoading: false,
-  error: null, // <-- dodane
+  error: null,
 };
 
 export default function (state = initialState, action) {
@@ -20,7 +17,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         isLoading: true,
-        error: null, // czyść błędy przy nowej akcji
+        error: null,
       };
 
     case AUTH_ACTIONS.LOGIN_SUCCES:

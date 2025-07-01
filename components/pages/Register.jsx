@@ -2,18 +2,16 @@ import React, {Component, createRef} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {
-  KeyboardAvoidingView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  SafeAreaView,
 } from 'react-native';
 import {register} from '../actions/auth';
-import FeatherIcon from 'react-native-vector-icons/Feather';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles } from '../styles/RegisterStyles';
 export class Register extends Component {
   constructor(props) {
     super(props);
@@ -36,42 +34,20 @@ export class Register extends Component {
     this.setState({[e.name]: e.value});
   };
   Register = e => {
-    console.log(this.state.email);
     if (this.state.password == this.state.password_check) {
       this.props.register(
         this.state.email,
         this.state.login,
         this.state.password,
       );
-      console.log('poszło');
-    } else {
-      console.log('nieprzeszło');
     }
   };
-  componentDidMount() {
-    // store.dispatch(loadUser())
-  }
-  // navigation = useNavigation();
   render() {
     const {email, password, password_check, login} = this.state;
-    // const {styles} = this.props;
-    const {navigation, isAuthenticated} = this.props;
-    console.log(isAuthenticated);
-    // if(isAuthenticated){
-    //   navigation.replace("Home")
-    // }
+
     return (
       <SafeAreaView style={{flex: 1, backgroundColor: '#e8ecf4'}}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => {
-                // handle onPress
-              }}
-              style={styles.headerBack}>
-              {/* <FeatherIcon color="#1D2A32" name="chevron-left" size={30} /> */}
-            </TouchableOpacity>
-          </View>
+        <View style={styles.container}>         
           <Text style={styles.title}>No to jazda!</Text>
           <Text style={styles.subtitle}>
             Wypełnij pola, aby utworzyć nowe konto.
@@ -104,7 +80,6 @@ export class Register extends Component {
                 name="email"
                 value={email}
                 onChangeText={email => this.setState({email: email})}
-                // onChange = {this.Change}
                 style={styles.inputControl}
                 clearButtonMode="while-editing"
                 keyboardType="email-address"
@@ -122,7 +97,6 @@ export class Register extends Component {
                 name="password"
                 value={password}
                 onChangeText={password => this.setState({password: password})}
-                // onChange = {this.Change}
                 style={styles.inputControl}
                 secureTextEntry
               />
@@ -138,7 +112,6 @@ export class Register extends Component {
                 onChangeText={password_check =>
                   this.setState({password_check: password_check})
                 }
-                // onChange = {this.Change}
                 style={styles.inputControl}
                 secureTextEntry
               />
@@ -171,115 +144,6 @@ export class Register extends Component {
     );
   }
 }
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 0,
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-  },
-  title: {
-    fontSize: 31,
-    fontWeight: '700',
-    color: '#1D2A32',
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#929292',
-  },
-  /** Header */
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  headerBack: {
-    padding: 8,
-    paddingTop: 0,
-    position: 'relative',
-    marginLeft: -16,
-  },
-  /** Form */
-  form: {
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 0,
-    marginTop: 24,
-  },
-  formAction: {
-    marginTop: 4,
-    marginBottom: 16,
-  },
-  formFooter: {
-    paddingVertical: 24,
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#222',
-    textAlign: 'center',
-    letterSpacing: 0.15,
-  },
-  /** Input */
-  input: {
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#222',
-    marginBottom: 8,
-  },
-  inputControl: {
-    height: 50,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#222',
-    borderWidth: 1,
-    borderColor: '#C9D3DB',
-    borderStyle: 'solid',
-  },
-  /** Button */
-  btn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-    backgroundColor: '#075eec',
-    borderColor: '#075eec',
-  },
-  btnText: {
-    fontSize: 18,
-    lineHeight: 26,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  errorContainer: {
-    backgroundColor: '#ffe6e6',
-    padding: 12,
-    borderRadius: 8,
-    borderColor: '#ff4d4d',
-    borderWidth: 1,
-    marginBottom: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  errorText: {
-    color: '#cc0000',
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-});
 
 const mapStateToProps = state => ({
   isAuthenticated: state.auth.isAuthenticated,

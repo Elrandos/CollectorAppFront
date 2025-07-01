@@ -13,7 +13,6 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import {getCollection} from '../actions/collections';
 import { Logout } from '../actions/auth';
 import {connect} from 'react-redux';
-import PropTypes from 'prop-types';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Collection from '../elements/Collection';
@@ -65,14 +64,6 @@ class Home extends Component {
         <View style={styles.container}>
           <Text style={styles.title}>Twoje Kolekcje</Text>
           <View style={styles.header}>
-            {/* <View style={styles.headerAction}>
-                      <TouchableOpacity
-                        onPress={() => {
-                          // handle onPress
-                        }}>
-                        <FeatherIcon name="chevron-left" size={24} />
-                      </TouchableOpacity>
-                    </View> */}
             <View style={styles.search}>
               <View style={styles.searchIcon}>
                 <FeatherIcon color="#778599" name="search" size={17} />
@@ -89,17 +80,13 @@ class Home extends Component {
               />
             </View>
             <View style={[styles.headerAction, {alignItems: 'flex-end'}]}>
-              <TouchableOpacity
-                onPress={() => {
-                  // handle onPress
-                }}>
+              <TouchableOpacity>
                 <Menu>
                   <MenuTrigger>
                     <FeatherIcon name="more-vertical" size={24} />
                   </MenuTrigger>
                   <MenuOptions customStyles={menuStyles}>
                     <MenuOption onSelect={() => this.handleLogout()} text="Wyloguj" />
-                    {/* <MenuOption onSelect={this.handleDelete} text="Usuń" /> */}
                   </MenuOptions>
                 </Menu>
               </TouchableOpacity>
@@ -108,9 +95,6 @@ class Home extends Component {
 
           <ScrollView
             contentContainerStyle={styles.scrollContent}
-            // refreshControl={
-            //   <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            // }
           >
             {filteredRows.length ? (
               filteredRows.map((item) => (
